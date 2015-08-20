@@ -1,4 +1,15 @@
 /*
+  Requirements:
+  Written description of concept includes all features to be implemented, visual references and sketches are included
+  At least 1 base class is defined
+  At least 2 child classes are defined
+  Code is commented
+  Documentation contains all required elements
+  Generated Sketch resembles initial concept
+  Sketch uses mouse OR keyboard input
+*/
+
+/*
 This code uses a buffer of mouse positions to determine the location, rotation, and shape of a 'pac man' and a trace line
 */
 
