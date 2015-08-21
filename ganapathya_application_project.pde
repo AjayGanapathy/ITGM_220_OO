@@ -1,3 +1,5 @@
+/*import statements go here*/
+
 /*
   Requirements:
   Written description of concept includes all features to be implemented, visual references and sketches are included
@@ -9,38 +11,62 @@
   Sketch uses mouse OR keyboard input
 */
 
-/*
-This code uses a buffer of mouse positions to determine the location, rotation, and shape of a 'pac man' and a trace line
+/**
+*  @author   Ajay Ganapathy <lets.talk@designbyajay.com>
+*  @version  1.0 
+*  @since    2015-08-20
 */
 
-/*
-PARAMETERS
 
-numberOfFramesToRemember determines the length of the trace line. The trace line follows the mouse, connecting the dots between the current frame and all the frames in memory
-translateFrameDelay controls the lag between moving the mouse on the screen, and the movement of the 'pac man'. The lag in the original pac man was what made the game difficult, so it seemed natural to include it in this homage.
-NumberOfGhosts doesn't actually make pac man 'ghosts' on the screen. Instead, it determines how much to onion skin pac man into the past. It's useful for viewing the squash and stretch on Pac Man as he moves around the screen.
+/*vars go here*/
+
+/**
+*  numberOfFramesToRemember determines the length of the trace line. The trace line follows the mouse, connecting the dots between the current frame and all the frames in memory
 */
 int numberOfFramesToRemember = 100;
+
+/**
+*  translateFrameDelay controls the lag between moving the mouse on the screen, and the movement of the 'pac man'. The lag in the original pac man was what made the game difficult, so it seemed natural to include it in this homage.
+*/
 int translateFrameDelay = 10;
+
+/**
+*  NumberOfGhosts doesn't actually make pac man 'ghosts' on the screen. Instead, it determines how much to onion skin pac man into the past. It's useful for viewing the squash and stretch on Pac Man as he moves around the screen.
+*/
 int numberOfGhosts = 90;
 
-/*
-GLOBALS
-
-Do not change these! It will mess up the code!
-
-This code uses an array of a fixed length, with a pointer that advances along the array with each frame to create a queue. It's much more efficient than using a linked list. Also, since processing does not have a queue
-data structure built into it, we have to code our own queue.
-*/
 
 //PShape[] deltaArray = new PShape[numberOfFramesToRemember]; - this is an optimization that I have yet to add - rather than recalculating the pshapes every frame, just cache them and calculate one per frame
+
+/**
+*  Description of xMouseArray goes here
+*/
 float[] xMouseArray = new float[numberOfFramesToRemember];
+
+/**
+*  Description of yMouseArray goes here
+*/
 float[] yMouseArray = new float[numberOfFramesToRemember];
+
+/**
+*  Description of rotationValue goes here
+*/
 float rotationValue = 0;
+
+/**
+*  Description of currentArrayStartIndex goes here
+*/
 int currentArrayStartIndex = 0;
 
 
+/*setup goes here*/
 
+/**
+*  This code uses a buffer of mouse positions to determine the location, rotation, and shape of a 'pac man' and a trace line
+*  <p>
+*  tell me how the different things that are being initialized work together
+*  this description can be multi-line
+*/
 void setup(){
   /*sanitize our Parameters so that we don't get array out of bounds errors*/
   numberOfFramesToRemember = abs(numberOfFramesToRemember);
@@ -58,6 +84,15 @@ void setup(){
   };
 };
 
+
+/*draw loop goes here*/
+
+/**
+*  Tell me what will result from from the draw loop
+*  <p>
+*  give me the sequence of events to achieve the result
+*  this description can be multi-line
+*/
 void draw(){
   /*clear the background with every frame*/
   background(#123456);
@@ -72,8 +107,18 @@ void draw(){
   drawMouseFollowingShape();
 };
 
-/*
-The custom shape has parameters that can be used to modify it. Eccentricity changes the curvature along one of the shape's edges, while inflection changes the concaviy on the other
+/*methods goes here*/
+
+/**
+*  short, 1 line description.
+*  <p>
+*  longer description if needed
+*  this description can be multi-line
+*  
+*  @param inflection changes the concaviy on the other
+*  @param eccentricity changes the curvature along one of the shape's edges
+*  @param horizontalSpan
+*  @param verticalSpan
 */
 void makeCustomShape(int inflection, int eccentricity, int horizontalSpan, int verticalSpan){
   /*sanitize parameters*/
@@ -102,7 +147,17 @@ void makeCustomShape(int inflection, int eccentricity, int horizontalSpan, int v
   }
 };
 
-/*this draws the trace line*/
+/**
+*  short, 1 line description.
+*  <p>
+*  longer description if needed
+*  this description can be multi-line
+*  
+*  @param inflection changes the concaviy on the other
+*  @param eccentricity changes the curvature along one of the shape's edges
+*  @param horizontalSpan
+*  @param verticalSpan
+*/
 void drawMouseFollowingCurve(){
   beginShape();
   /*iterate through the queue and connect the dots between the mouse positions*/
@@ -112,8 +167,7 @@ void drawMouseFollowingCurve(){
   endShape();
 };
 
-
-/*this helper function is critical to making the arrays and advancing pointer work as a queue. It makes sure that negative index values get wrapped to the array bounds correctly. It fills in the gaps that modulo leaves behind*/
+//TODO refactor this function into queue
 int wrapIndex(int indexIn){
   if(indexIn<0){
     while(abs(indexIn)>numberOfFramesToRemember){
@@ -126,7 +180,17 @@ int wrapIndex(int indexIn){
   }
 };
 
-/*this draws the pac man shape*/
+/**
+*  this draws the pac man shape
+*  <p>
+*  longer description if needed
+*  this description can be multi-line
+*  
+*  @param inflection changes the concaviy on the other
+*  @param eccentricity changes the curvature along one of the shape's edges
+*  @param horizontalSpan
+*  @param verticalSpan
+*/
 void drawMouseFollowingShape(){ 
   /*first, figure out the rotation of the shape - this makes sure the shape is pointing in the direction that the tracer line is moving*/
   float opposite = 0;
