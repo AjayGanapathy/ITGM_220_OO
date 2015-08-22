@@ -3,8 +3,6 @@
 /*
   Requirements:
   Written description of concept includes all features to be implemented, visual references and sketches are included
-  At least 1 base class is defined
-  At least 2 child classes are defined
   Code is commented
   Documentation contains all required elements
   Generated Sketch resembles initial concept

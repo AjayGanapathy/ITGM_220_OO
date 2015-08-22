@@ -1,31 +1,23 @@
 /*import statements go here*/
 
-
 /**
+*  Encapsulates a custom linked list, wrapped into a circular buffer. It moves head and tail pointers, rather than list nodes, to improve performance.
+*
 *  @author   Ajay Ganapathy <lets.talk@designbyajay.com>
 *  @version  Major.Minor
 *  @since    2015-08-21
-*  @param    <T> any non-primitive class
+*  @param    <V> any non-primitive class, or autoboxed primitive
 */
-class Queue<T extends Object>{ //we have to explicitly state that T extends object in order to give the compiler enough information to appropriately size the internal array for type T
+class Queue<V>{
 
   
   /*vars go here*/
-
-  /**
-  *  internalArray stores all of the objects that are currently in the queue. 
-  */
-  private T[] internalArray;
   
   /**
-  *  beginningIndex maintains the starting position of the queue. Changing the beginning index changes which element in the internal array is first in the queue, without actually changing that element's index in the array.
+  *  Maintains a reference to the element that is at the beginning of the queue
   */
-  private int beginningIndex = 0;
+  private QueueElement<V> headPointer;
   
-  /**
-  * queueLength maintains a count of how many elements are currently in the queue. It can range from zero elements, to the maximum length of the queue.
-  */
-  private int queueLength = 0; 
   
   
   /*constructor goes here*/
@@ -36,20 +28,11 @@ class Queue<T extends Object>{ //we have to explicitly state that T extends obje
   *  longer description if needed
   *  this description can be multi-line
   *  
-  *  @param queueMaxLength queueMaxLength determines how long the queue can get. Increasing the maximum length increases the amount of memory provisioned for storing the queue elements
-  *  @return  Queue The Queue object stores elements inside an internal array, and provides accessor methods that give the internal array the behaviors of a queue, without sacrificing the performance of an array
+  *  @return Queue The Queue object stores elements inside an internal circular buffer, which allows for quick cycling, enqueueing and dequeueing of queue elements
   */
-  Queue(int queueMaxLength) throws EmptyQueueException{
-    try{
-//      internalArray = new T[queueMaxLength]; //you cannot initialize a generic array in Java for some odd reason - see http://stackoverflow.com/questions/2927391/whats-the-reason-i-cant-create-generic-array-types-in-java for more information.
-      internalArray = (T[]) new Object[queueMaxLength]; //for now, use this hack, which casts object as T ... technically it's sound on a compiler level, since this generic T inherits from Object, and all types inherit from objects, but this might cause problems at runtime
-    }
-    catch(NegativeArraySizeException e){
-      throw new EmptyQueueException((Integer)queueMaxLength+" is negative. Queues must be initialized with a maximum size of greater than or equal to 1");
-    }
-    if(queueMaxLength == 0){
-      throw new EmptyQueueException((Integer)queueMaxLength+" is zero. Queues must be initialized with a maximum size of greater than or equal to 1");
-    } 
+  Queue(V firstValue){ //TODO: add a constructor that accepts an iterable as an argument
+    //create an intentionally empty queue (the queue value is null
+    headPointer = new QueueElement(firstValue);
   }
   
   
@@ -58,17 +41,19 @@ class Queue<T extends Object>{ //we have to explicitly state that T extends obje
   /**
   *  Enqueue adds an element to the back of the queue
   *  <p>
-  *  Enqueue calculates the index on internalArray that represents the end of the queue, and inserts the element at that index.
-  *  In the case that more elements have been enqueued than the maximum length of the queue, Enqueue will overwrite the first element in the queue with the current element, and then increment the beginningIndex to
-  *  cycle all elements forward. It will do this silently, without raising an exception or otherwise alerting the object that called it.
+  *  describe how it achieves this effect
   *  <p>  
-  *  TODO: automatically resize the queue with a threaded Array Copy, so that silent overwriting never occurs
-  *  TODO: throw an exception if the queue cannot be resized
   *
   *  @param elementIn elementIn is the element to be added to the end of the queue
   */
-  void enqueue(T elementIn){
-    
+  void enqueue(V valueIn){
+    if(headPointer.getThisElementValue() != null){
+      headPointer.insertValueAfter(valueIn);
+    }
+    else{
+      headPointer.setThisElementValue(valueIn);
+    }
+//    headPointer.insertValueAfter(valueIn);
   }
 
   /**
@@ -78,59 +63,92 @@ class Queue<T extends Object>{ //we have to explicitly state that T extends obje
   *  <p>
   *  TODO: throw an exception if the queue length is zero, rather than returning a null pointer
   *  
-  *  @return Description of the returned type goes here
+  *  @return returns the value that was just dequeued;
   */
-//  T dequeue(){} //temporarily commented so that project will compile
-  
-  /**
-  *  short, 1 line description.
-  *  <p>
-  *  longer description if needed
-  *  this description can be multi-line
-  *  
-  *  @param index Description of genericType goes here
-  *  @return Description of the returned type goes here
-  */
-  T getValue(int index) throws EmptyQueueException{
-    //wrap the index to the length of the queue
+  V dequeue() throws EmptyQueueException{
     try{
-      index %= queueLength;
+      V toReturn = headPointer.getThisElementValue();
+          QueueElement toRemove = headPointer;
+      try{
+        headPointer = headPointer.getNextElement();
+      }
+      catch(QueueBoundsException e){
+        //in this case, make an empty queue;
+        headPointer.setThisElementValue(null);
+      }
+      return toReturn;
     }
-    catch(ArithmeticException e){
-      throw new EmptyQueueException("this queue is empty");
+    catch(NullPointerException e){
+      throw new EmptyQueueException("there are no values left in the queue");
     }
-    //next, add the index to the offset of the beginning index
-    index += beginningIndex;
-    //finally, wrap the beginning index value to the length of the queue and fetch the value
-    index %= internalArray.length;
-    return internalArray[index];
+  }
+
+  /**
+  *  Moves the first element in the queue to the end of the queue
+  *  
+  *  @param numberOfQueueElementsToCycle the number of elements to move from the beginning of the queue to the end of the queue
+  */
+  public void cycleForward (int numberOfQueueElementsToCycle){
+    queueElement initialHeadPointer = headPointer;
+    for(int elementIndex=0; elementIndex==numberOfQueueElementsToCycle%getQueueLength(); elementIndex++){
+      try{      
+        headPointer = headPointer.getNextElement();
+      }
+      catch(QueueBoundsException e){
+        //if the circular buffer is broken, fix it
+        relinkQueueCircularBuffer();
+        //then reset the head pointer and try again
+        headPointer = initialHeadPointer;
+        this.cycleForward(numberOfQueueElementsToCycle);
+      }
+    }
   }
   
+  /**
+  *  Moves the last element in the queue to the beginning of the queue
+  *  
+  *  @param numberOfQueueElementsToCycle the number of elements to move from the end of the queue to the beginning of the queue
+  */
+  public void cycleBackward(int numberOfQueueElementsToCycle){
+    for(int elementIndex=0; elementIndex==numberOfQueueElementsToCycle%getQueueLength(); elementIndex++){
+      try{      
+        headPointer = headPointer.getPreviousElement();
+      }
+      catch(QueueBoundsException e){
+        //if the circular buffer is broken, fix it
+        relinkQueueCircularBuffer();
+        //then reset the head pointer and try again
+        headPointer = initialHeadPointer;
+        this.cycleBackward(numberOfQueueElementsToCycle);
+      }
+    }
+  }
   
+  /**
+  *  Accessor for the number of elements in a queue. This works by actually counting the number of elements in the queue every time it is called. 
+  *  <p>
+  *  There is no corresponding 'setQueueLength' method because the length of the queue changes as elements are enqueued
+  *  <p>
+  *  TODO: keep an index of the length of the queue, as well as an index wrapper and handler, such that the index is the source of truth for the length of the queue, even if the circular buffer is larger
+  *  
+  *  @return number of elements currently in queue
+  */
+  public int getQueueLength(){
+    int toReturn = 0;
+    if(headPointer.getThisElementValue != null){
+      do{
+        headPointer = headPointer.getNextElement;
+        toReturn++;
+      }
+      while(headPointer.getNextElement != headPointer);
+    }
+    return toReturn;
+  }
+    
+    
   /*private methods go here*/
-  
-  /**
-  *  short, 1 line description.
-  *  <p>
-  *  longer description if needed
-  *  this description can be multi-line
-  *  
-  *  @param numberOfQueueElementsToCycle Description of numberOfQueueElementsToCycle goes here
-  */
-  private void cycleForward(int numberOfQueueElementsToCycle){}
-  
-  /**
-  *  short, 1 line description.
-  *  <p>
-  *  longer description if needed
-  *  this description can be multi-line
-  *  
-  *  @param numberOfQueueElementsToCycle Description of numberOfQueueElementsToCycle goes here
-  */
-  private void cycleBackward(int numberOfQueueElementsToCycle){}
-//  int queueLength(){}
-  int maxLength(){
-    return internalArray.length;
+  private void relinkQueueCircularBuffer(){
+    return; //will finish this method later
   }
 
 }

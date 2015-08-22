@@ -1,12 +1,13 @@
 /*import statements go here*/
+import java.lang.Exception;
 
 /**
 *  @author   Ajay Ganapathy <lets.talk@designbyajay.com>
 *  @version  Major.Minor
-*  @since    2015-08-21
+*  @since    2015-08-22
 */
 
-class EmptyQueueException extends QueueException{
+class QueueException extends Exception{
   
   /**
   *  short, 1 line description.
@@ -17,7 +18,7 @@ class EmptyQueueException extends QueueException{
   *  @param queueMaxLength queueMaxLength determines how long the queue can get. Increasing the maximum length increases the amount of memory provisioned for storing the queue elements
   *  @return  Queue The Queue object stores elements inside an internal array, and provides accessor methods that give the internal array the behaviors of a queue, without sacrificing the performance of an array
   */
-  public EmptyQueueException(){
+  public QueueException(){
     super();
   }
 
@@ -30,7 +31,7 @@ class EmptyQueueException extends QueueException{
   *  @param queueMaxLength queueMaxLength determines how long the queue can get. Increasing the maximum length increases the amount of memory provisioned for storing the queue elements
   *  @return  Queue The Queue object stores elements inside an internal array, and provides accessor methods that give the internal array the behaviors of a queue, without sacrificing the performance of an array
   */  
-  public EmptyQueueException(String message){
+  public QueueException(String message){
     super(message);
   }
 
