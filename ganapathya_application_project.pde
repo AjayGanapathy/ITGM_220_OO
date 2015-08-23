@@ -12,7 +12,7 @@
 /**
 *  numberOfFramesToRemember determines the length of the trace line. The trace line follows the mouse, connecting the dots between the current frame and all the frames in memory
 */
-int numberOfFramesToRemember = 100;
+int numberOfFramesToRemember = 300;
 
 /**
 *  translateFrameDelay controls the lag between moving the mouse on the screen, and the movement of the 'pac man'. The lag in the original pac man was what made the game difficult, so it seemed natural to include it in this homage.
@@ -95,15 +95,19 @@ void enqueueCustomShape(){
   float adjacent = mouseX-pmouseX;  
   float hypotenuse = sqrt(sq(opposite)+sq(adjacent));
   if(hypotenuse == 0){
-    //then mouse cursor hasn't changed position, and the shape should be the duplicate of whatever it was last time
-    customShapeQueue.cycleBackward(1);
-    try{
-      customShapeQueue.enqueue(customShapeQueue.peekAtHead());
-    }
-    catch(EmptyQueueException e){
-      //do nothing for now
-    }
-    customShapeQueue.cycleForward(1);
+    return; //hack that prevents memory leak from occuring
+//    //then mouse cursor hasn't changed position, and the shape should be the duplicate of whatever it was last time
+//    customShapeQueue.cycleBackward(1);
+//    try{
+//      PShape toDuplicate = customShapeQueue.peekAtHead();
+//      customShapeQueue.cycleForward(1);
+//      customShapeQueue.enqueue(toDuplicate);
+////      customShapeQueue.enqueue(customShapeQueue.peekAtHead());
+//    }
+//    catch(EmptyQueueException e){
+//      //do nothing for now
+//    }
+////    customShapeQueue.cycleForward(1);
   }
   else{
     if(opposite < 0){

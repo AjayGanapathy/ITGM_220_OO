@@ -107,7 +107,6 @@ class Queue<V>{
   *  @param numberOfQueueElementsToCycle the number of elements to move from the beginning of the queue to the end of the queue
   */
   public void cycleForward (int numberOfQueueElementsToCycle){
-    QueueElement initialHeadPointer = headPointer;
     for(int elementIndex=0; elementIndex<numberOfQueueElementsToCycle%this.getQueueLength(); elementIndex++){
       try{      
         headPointer = headPointer.getNextElement();
@@ -125,18 +124,14 @@ class Queue<V>{
   *  @param numberOfQueueElementsToCycle the number of elements to move from the end of the queue to the beginning of the queue
   */
   public void cycleBackward(int numberOfQueueElementsToCycle){
-    QueueElement initialHeadPointer = headPointer;
+//    QueueElement initialHeadPointer = headPointer;
     for(int elementIndex=0; elementIndex<numberOfQueueElementsToCycle%this.getQueueLength(); elementIndex++){
       try{      
         headPointer = headPointer.getPreviousElement();
       }
       catch(QueueBoundsException e){
+        println("queue bounds exception");
         break;
-//        //if the circular buffer is broken, fix it
-//        relinkQueueCircularBuffer();
-//        //then reset the head pointer and try again
-//        headPointer = initialHeadPointer;
-//        this.cycleBackward(numberOfQueueElementsToCycle);
       }
     }
   }
