@@ -17,7 +17,7 @@ class QueueBoundsException extends QueueException{
   *  @param queueMaxLength queueMaxLength determines how long the queue can get. Increasing the maximum length increases the amount of memory provisioned for storing the queue elements
   *  @return  Queue The Queue object stores elements inside an internal array, and provides accessor methods that give the internal array the behaviors of a queue, without sacrificing the performance of an array
   */
-  public QueueMaxLengthException(){
+  public QueueBoundsException(){
     super();
   }
 
@@ -30,7 +30,7 @@ class QueueBoundsException extends QueueException{
   *  @param queueMaxLength queueMaxLength determines how long the queue can get. Increasing the maximum length increases the amount of memory provisioned for storing the queue elements
   *  @return  Queue The Queue object stores elements inside an internal array, and provides accessor methods that give the internal array the behaviors of a queue, without sacrificing the performance of an array
   */  
-  public QueueMaxLengthException(String message){
+  public QueueBoundsException(String message){
     super(message);
   }
 

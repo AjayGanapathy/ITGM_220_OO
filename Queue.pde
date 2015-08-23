@@ -19,7 +19,6 @@ class Queue<V>{
   private QueueElement<V> headPointer;
   
   
-  
   /*constructor goes here*/
 
   /**
@@ -48,12 +47,11 @@ class Queue<V>{
   */
   void enqueue(V valueIn){
     if(headPointer.getThisElementValue() != null){
-      headPointer.insertValueAfter(valueIn);
+      headPointer.insertValueBefore(valueIn);
     }
     else{
       headPointer.setThisElementValue(valueIn);
     }
-//    headPointer.insertValueAfter(valueIn);
   }
 
   /**
@@ -68,12 +66,14 @@ class Queue<V>{
   V dequeue() throws EmptyQueueException{
     try{
       V toReturn = headPointer.getThisElementValue();
-          QueueElement toRemove = headPointer;
+      QueueElement toRemove = headPointer;
       try{
         headPointer = headPointer.getNextElement();
+        toRemove.removeSelf();
       }
       catch(QueueBoundsException e){
         //in this case, make an empty queue;
+        println("this queue is empty!!");
         headPointer.setThisElementValue(null);
       }
       return toReturn;
@@ -84,22 +84,42 @@ class Queue<V>{
   }
 
   /**
+  *  Dequeue removes the first element from the front of the queue, and cycles all elements forward.
+  *  <p>
+  *  Dequeue increments the beginningIndex and decrements the queueLength. In the case that the queue length is zero, dequeue returns null
+  *  <p>
+  *  TODO: throw an exception if the queue length is zero, rather than returning a null pointer
+  *  
+  *  @return returns the value that was just dequeued;
+  */
+  V peekAtHead() throws EmptyQueueException{
+    try{
+      V toReturn = headPointer.getThisElementValue();
+      return toReturn;
+    }
+    catch(NullPointerException e){
+      throw new EmptyQueueException("this queue is empty");
+    }
+  }
+  /**
   *  Moves the first element in the queue to the end of the queue
   *  
   *  @param numberOfQueueElementsToCycle the number of elements to move from the beginning of the queue to the end of the queue
   */
   public void cycleForward (int numberOfQueueElementsToCycle){
-    queueElement initialHeadPointer = headPointer;
-    for(int elementIndex=0; elementIndex==numberOfQueueElementsToCycle%getQueueLength(); elementIndex++){
+    QueueElement initialHeadPointer = headPointer;
+    for(int elementIndex=0; elementIndex<numberOfQueueElementsToCycle%this.getQueueLength(); elementIndex++){
       try{      
         headPointer = headPointer.getNextElement();
       }
       catch(QueueBoundsException e){
-        //if the circular buffer is broken, fix it
-        relinkQueueCircularBuffer();
-        //then reset the head pointer and try again
-        headPointer = initialHeadPointer;
-        this.cycleForward(numberOfQueueElementsToCycle);
+        println("queue bounds exception");
+        break;
+//        //if the circular buffer is broken, fix it
+//        relinkQueueCircularBuffer();
+//        //then reset the head pointer and try again
+//        headPointer = initialHeadPointer;
+//        this.cycleForward(numberOfQueueElementsToCycle);
       }
     }
   }
@@ -110,16 +130,18 @@ class Queue<V>{
   *  @param numberOfQueueElementsToCycle the number of elements to move from the end of the queue to the beginning of the queue
   */
   public void cycleBackward(int numberOfQueueElementsToCycle){
-    for(int elementIndex=0; elementIndex==numberOfQueueElementsToCycle%getQueueLength(); elementIndex++){
+    QueueElement initialHeadPointer = headPointer;
+    for(int elementIndex=0; elementIndex<numberOfQueueElementsToCycle%this.getQueueLength(); elementIndex++){
       try{      
         headPointer = headPointer.getPreviousElement();
       }
       catch(QueueBoundsException e){
-        //if the circular buffer is broken, fix it
-        relinkQueueCircularBuffer();
-        //then reset the head pointer and try again
-        headPointer = initialHeadPointer;
-        this.cycleBackward(numberOfQueueElementsToCycle);
+        break;
+//        //if the circular buffer is broken, fix it
+//        relinkQueueCircularBuffer();
+//        //then reset the head pointer and try again
+//        headPointer = initialHeadPointer;
+//        this.cycleBackward(numberOfQueueElementsToCycle);
       }
     }
   }
@@ -129,27 +151,37 @@ class Queue<V>{
   *  <p>
   *  There is no corresponding 'setQueueLength' method because the length of the queue changes as elements are enqueued
   *  <p>
-  *  TODO: keep an index of the length of the queue, as well as an index wrapper and handler, such that the index is the source of truth for the length of the queue, even if the circular buffer is larger
+  *  TODO: keep an index of the length of the queue, and update it on enqueue and dequeue
   *  
   *  @return number of elements currently in queue
   */
   public int getQueueLength(){
+    QueueElement currentElement = headPointer;
     int toReturn = 0;
-    if(headPointer.getThisElementValue != null){
+    if(headPointer.getThisElementValue() != null){
       do{
-        headPointer = headPointer.getNextElement;
-        toReturn++;
+        try{
+          currentElement = currentElement.getNextElement();
+          toReturn++;
+        }
+        catch(QueueBoundsException e){
+          return 1; //this is a hack that assumes that the queue will never be empty. TODO: fix this hack
+//          //fix the circular buffer
+//          relinkQueueCircularBuffer();
+//          //then try this same method again
+//          this.getQueueLength();
+        }
       }
-      while(headPointer.getNextElement != headPointer);
+      while(currentElement != headPointer);
     }
     return toReturn;
   }
     
     
   /*private methods go here*/
-  private void relinkQueueCircularBuffer(){
-    return; //will finish this method later
-  }
+//  private void relinkQueueCircularBuffer(){
+//    return; //will finish this method later
+//  }
 
 }
 

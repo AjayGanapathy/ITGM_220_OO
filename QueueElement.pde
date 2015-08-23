@@ -89,20 +89,23 @@ class QueueElement<V>{
   *  Removes this element from the queue. Does NOT delete this element. Remember to update any pointers to this element manually to avoid accidentally unlinking the queue
   */
   public void removeSelf(){
-    nextQueueElement.previousQueueElement = previousQueueElement;
-    previousQueueElement.nextQueueElement = nextQueueElement;
+    nextQueueElement.previousQueueElement = this.previousQueueElement;
+    previousQueueElement.nextQueueElement = this.nextQueueElement;
     //run two self-reference checks
     if(previousQueueElement == this){
+      println("this is the first element in the queue");
       //then this element is the first element in the queue
       nextQueueElement.previousQueueElement = nextQueueElement;
     }
     if(nextQueueElement == this){
+      println("this is the last element in the queue");
       //then this element is the last element in the queue
       previousQueueElement.nextQueueElement = previousQueueElement;
     }
     //remove references from previous and next elements from this element to allow for garbage collection of those elements later on
     previousQueueElement = null;
     nextQueueElement = null;
+    println("element removed");
   }
   
   /**
