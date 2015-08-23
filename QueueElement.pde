@@ -4,7 +4,7 @@
 *  Encapsulates a custom linked list, wrapped into a circular buffer. It moves head and tail pointers, rather than list nodes, to improve performance.
 *
 *  @author   Ajay Ganapathy <lets.talk@designbyajay.com>
-*  @version  Major.Minor
+*  @version  1.1
 *  @since    2015-08-22
 *  @param    <E> any non-primitive class, or autoboxed primitive
 */
